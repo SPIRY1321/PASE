@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escáner de Códigos QR</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      border: 2px solid #000;
+      margin-bottom: 10px;
+      display: none;
+    }
+    #output {
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+    .button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    #records {
+      text-align: left;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Escáner de Pase Familiar</h1>
+
+  <button class="button" onclick="startScanner()">Escanear</button>
+  <video id="video" autoplay></video>
+  <div id="output">Esperando escaneo...</div>
+
+  <button class="button" onclick="addEntry()">Agregar Pase</button>
+  <button class="button" onclick="showRecords()">Ver Registros</button>
+  <button class="button" onclick="hideRecords()">Ocultar</button>
+
+  <div id="records"></div>
+
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <script>
+    const validPasses = new Map();
+    let scannerActive = false;
+    const codeReader = new ZXing.BrowserQRCodeReader();
+    const videoElement = document.getElementById('video');
+    const outputElement = document.getElementById('output');
+
+    function startScanner() {
+      if (scannerActive) return;
+      scannerActive = true;
+      videoElement.style.display = 'block';
+      codeReader.getVideoInputDevices().then(videoInputDevices => {
+        if (videoInputDevices.length > 0) {
+          const firstDeviceId = videoInputDevices[0].deviceId;
+          codeReader.decodeFromVideoDevice(firstDeviceId, 'video', (result, err) => {
+            if (result) {
+              const scannedText = result.text.trim().toUpperCase();
+              if (validPasses.has(scannedText)) {
+                const { name, number } = validPasses.get(scannedText);
+                outputElement.innerHTML = `<strong>PASE VÁLIDO</strong><br>Familia: ${name}<br>Número de personas: ${number}`;
+              } else {
+                outputElement.innerHTML = `<strong>PASE INVÁLIDO</strong>`;
+              }
+            }
+          });
+        } else {
+          outputElement.textContent = "No se encontró ninguna cámara disponible.";
+        }
+      }).catch(err => {
+        console.error(err);
+        outputElement.textContent = "Error al acceder a la cámara.";
+      });
+    }
+
+    function addEntry() {
+      const input = prompt("Ingresa el nombre de la familia y el número de personas (Ej: CABRERA ORDAZ 5):");
+      if (input) {
+        const parts = input.trim().split(/\s+/);
+        const number = parts.pop();
+        const name = parts.join(" ");
+        validPasses.set(`${name.toUpperCase()} ${number}`, { name, number });
+        alert("Pase agregado exitosamente");
+      }
+    }
+
+    function showRecords() {
+      const recordsDiv = document.getElementById("records");
+      if (validPasses.size === 0) {
+        recordsDiv.innerHTML = "<p>No hay registros.</p>";
+      } else {
+        recordsDiv.innerHTML = "<h3>Registros válidos:</h3><ul>" +
+          Array.from(validPasses.entries()).map(([key, data]) => `<li>${data.name.toUpperCase()} - ${data.number} personas</li>`).join("") +
+          "</ul>";
+      }
+      recordsDiv.style.display = 'block';
+    }
+
+    function hideRecords() {
+      document.getElementById("records").style.display = 'none';
+    }
+  </script>
+</body>
+</html>
