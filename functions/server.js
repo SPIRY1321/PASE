@@ -8,12 +8,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/buscar', async (req, res) => {
-    // Si no mandan 'q', usamos 'tortilla' por defecto como en tu primer ejemplo
+// Ruta compatible con Netlify Functions y con la redirección
+app.get(['/api/buscar', '/.netlify/functions/server/api/buscar', '/server/api/buscar'], async (req, res) => {
     const terminoBusqueda = req.query.q || 'tortilla';
 
     try {
-        // URL real de la PNT con los parámetros correctos
         const urlPNT = `https://buscador.plataformadetransparencia.org.mx/bkobligaciones/api/v1/facetas?q=${encodeURIComponent(terminoBusqueda)}&sistema=todos&exacta=true`;
 
         const respuestaPNT = await axios.get(urlPNT, {
