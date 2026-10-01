@@ -1,8 +1,8 @@
 [build]
-  functions = "funciones"
+  functions = "functions"   # Cambiar de funciones a functions
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/servidor"
+  to = "/.netlify/functions/server"   # Cambiar de servidor a server
   status = 200
   force = true
