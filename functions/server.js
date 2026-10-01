@@ -8,8 +8,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ruta compatible con Netlify Functions y con la redirección
-app.get(['/api/buscar', '/.netlify/functions/server/api/buscar', '/server/api/buscar'], async (req, res) => {
+// Ahora puedes escuchar directamente en /buscar o en /
+app.get(['/', '/buscar'], async (req, res) => {
     const terminoBusqueda = req.query.q || 'tortilla';
 
     try {
@@ -37,5 +37,4 @@ app.get(['/api/buscar', '/.netlify/functions/server/api/buscar', '/server/api/bu
     }
 });
 
-// Exportamos la app envuelta en serverless para que Netlify la ejecute como función
 module.exports.handler = serverless(app);
