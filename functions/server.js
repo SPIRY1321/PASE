@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Definimos la ruta directamente con el prefijo que Netlify le enviará
 app.get('/api/buscar', async (req, res) => {
     const terminoBusqueda = req.query.q || 'tortilla';
 
@@ -36,5 +37,4 @@ app.get('/api/buscar', async (req, res) => {
     }
 });
 
-// Exportación compatible con Netlify Functions
 module.exports.handler = serverless(app);
