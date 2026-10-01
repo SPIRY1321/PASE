@@ -8,8 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ahora puedes escuchar directamente en /buscar o en /
-app.get(['/', '/buscar'], async (req, res) => {
+app.get('/api/buscar', async (req, res) => {
     const terminoBusqueda = req.query.q || 'tortilla';
 
     try {
@@ -37,4 +36,5 @@ app.get(['/', '/buscar'], async (req, res) => {
     }
 });
 
+// Exportación compatible con Netlify Functions
 module.exports.handler = serverless(app);
